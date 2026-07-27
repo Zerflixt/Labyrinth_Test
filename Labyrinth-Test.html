@@ -173,6 +173,11 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
  background-position: center;
  border: none;
  padding: 0;
+
+-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
 }
 
 img {
@@ -237,7 +242,7 @@ $(document).on(':passagedisplay', function () {
 27.07.2026: 
 - Man kann links und rechts klicken um sich zu drehen.
 - Der Vorwärts Button macht nocht nichts
-- langes drauftippen soll nun nicht mehr den grafik kontext öffnen?
+- langes drauftippen auf vorwärts soll nun nicht mehr den grafik kontext öffnen?
 &lt;&lt;button &quot;Vollbild starten&quot;&gt;&gt;
 	&lt;&lt;run document.documentElement.requestFullscreen()&gt;&gt;
 	&lt;&lt;goto &quot;Start&quot;&gt;&gt;
