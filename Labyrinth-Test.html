@@ -236,6 +236,11 @@ $(document).on(':passagedisplay', function () {
  });
 
 $('.js-b').off('click').on('click', function () {
+  $('#debug-target').text(
+ 'Passage: ' + State.variables.room + ' | Blick: ' + State.variables.facing
+ ); 
+  
+  
  let dx = 0;
  let dy = 0;
  let offen = false;
@@ -260,15 +265,20 @@ $('.js-b').off('click').on('click', function () {
  }
 
  if (!offen) {
- $('#debug-target').text('Weg ist zu');
+ $('#debug-target').text(
+ 'Passage: ' + State.variables.room + ' | Blick: ' + State.variables.facing + ' | Weg ist zu'
+ );
  return;
  }
-
+  
  const newX = State.variables.x + dx;
  const newY = State.variables.y + dy;
  const targetName = setup.pad3(newX) + setup.pad3(newY);
 
- $('#debug-target').text(targetName);
+ $('#debug-target').text(
+ 'Passage: ' + State.variables.room + ' | Blick: ' + State.variables.facing + ' | Ziel: ' + targetName
+ );
+
  Engine.play(targetName);
 });
 });
@@ -328,7 +338,62 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set $x = 0&gt;&gt;
 &lt;&lt;set $y = -1&gt;&gt;
 &lt;&lt;set $N = true&gt;&gt;
+&lt;&lt;set $W = true&gt;&gt;
+&lt;&lt;set $S = false&gt;&gt;
+&lt;&lt;set $E = true&gt;&gt;
+
+
+&lt;&lt;if !$facing&gt;&gt;
+ &lt;&lt;set $facing = &quot;FN&quot;&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
+&lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
+
+&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
+&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
+
+&lt;div class=&quot;img-wrap&quot;&gt;
+ &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
+ &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
+ &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
+ &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="-001-001" tags="" position="700,500" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;set $room = &quot;-001-001&quot;&gt;&gt;
+&lt;&lt;set $x = -1&gt;&gt;
+&lt;&lt;set $y = -1&gt;&gt;
+&lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = false&gt;&gt;
+&lt;&lt;set $S = false&gt;&gt;
+&lt;&lt;set $E = true&gt;&gt;
+
+
+&lt;&lt;if !$facing&gt;&gt;
+ &lt;&lt;set $facing = &quot;FN&quot;&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
+&lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
+
+&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
+&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
+
+&lt;div class=&quot;img-wrap&quot;&gt;
+ &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
+ &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
+ &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
+ &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="+001-001" tags="" position="900,500" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;set $room = &quot;+001-001&quot;&gt;&gt;
+&lt;&lt;set $x = 1&gt;&gt;
+&lt;&lt;set $y = -1&gt;&gt;
+
+&lt;&lt;set $N = false&gt;&gt;
+&lt;&lt;set $W = true&gt;&gt;
 &lt;&lt;set $S = false&gt;&gt;
 &lt;&lt;set $E = false&gt;&gt;
 
