@@ -110,21 +110,33 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
 }
 
 #story {
- margin: 0 auto; /* Den Textbereich ganz nach links schieben */
-  padding: 0;
+/* margin: 0 auto; /* Den Textbereich ganz nach links schieben */
+/*  padding: 0;
   max-width:100%
     
-    outline: 2px solid red;
+    outline: 2px solid red;*/
+   margin-left: 0 !important;
+ margin-right: 0 !important;
+ padding-left: 0 !important;
+ padding-right: 0 !important;
 }
 
 .img-wrap {
- position: relative; /* Damit die Hotspots sich auf das Bild beziehen */
+  position: relative;
  display: block;
+ width: 100%;
+ margin: 0 !important;
+ padding: 0 !important;
+ box-sizing: border-box;
+ outline: 2px solid blue;
+  
+/* position: relative; /* Damit die Hotspots sich auf das Bild beziehen */
+/** display: block;
  width: 100%;
  margin: 0 auto;
  text-align: center;
   
-  outline: 2px solid blue;
+  outline: 2px solid blue;*/
   
  -webkit-touch-callout: none; /* Kein Browser-Menü bei langem Tippen auf Apple-Geräten */
  -webkit-user-select: none; /* Nichts auf dem Bildbereich markieren */
