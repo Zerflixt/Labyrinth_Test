@@ -235,73 +235,54 @@ $(document).on(':passagedisplay', function () {
  Engine.play(State.variables.room);
  });
 
- $('.js-b').off('click').on('click', function () {
+$('.js-b').off('click').on('click', function () {
  let dx = 0;
  let dy = 0;
+ let offen = false;
 
  switch (State.variables.facing) {
  case 'FN':
+ offen = State.variables.N;
  dy = 1;
  break;
  case 'FS':
+ offen = State.variables.S;
  dy = -1;
  break;
  case 'FW':
+ offen = State.variables.W;
  dx = -1;
  break;
  case 'FE':
+ offen = State.variables.E;
  dx = 1;
  break;
  }
 
+ if (!offen) {
+ $('#debug-target').text('Weg ist zu');
+ return;
+ }
+
  const newX = State.variables.x + dx;
  const newY = State.variables.y + dy;
-
- const targetName =
- setup.pad3(newX) + setup.pad3(newY) + State.variables.facing;
+ const targetName = setup.pad3(newX) + setup.pad3(newY);
 
  $('#debug-target').text(targetName);
- });
+ Engine.play(targetName);
+});
 });
 
 $(document).on('contextmenu', function (e) {
  e.preventDefault(); // hiermit soll das Kontextmenü am PC-Browser bei Rechtsklick vermieden werden
-});</script><tw-passagedata pid="1" name="+000+000" tags="" position="800,400" size="100,100">/* &lt;&lt;nobr&gt;&gt;
-&lt;&lt;set $room = &quot;+000+000&quot;&gt;&gt;
-
-&lt;&lt;set $N = true&gt;&gt;
-&lt;&lt;set $W = true&gt;&gt;
-&lt;&lt;set $S = true&gt;&gt;
-&lt;&lt;set $E = true&gt;&gt;
-
-&lt;&lt;set $x = 0&gt;&gt;
-&lt;&lt;set $y = 0&gt;&gt;
-&lt;&lt;if !$facing&gt;&gt;
- &lt;&lt;set $facing = &quot;FN&quot;&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-
-&lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
-&lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
-
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-/% &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt; %/
-
-/% &lt;img src=&quot;bilder/+000+000FN.jpg&quot; class=&quot;responsive-image&quot;&gt; %/
-&lt;div class=&quot;img-wrap&quot;&gt;
- &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
- &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
- &lt;button class=&quot;hotspot pos-tm icon-forward&quot;&gt;&lt;/button&gt;
- &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
-&lt;/div&gt;
-
-&lt;&lt;/nobr&gt;&gt;*/
+});</script><tw-passagedata pid="1" name="+000+000" tags="" position="800,400" size="100,100">
 &lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+000+000&quot;&gt;&gt;
 
-&lt;&lt;set $N = true&gt;&gt;
-&lt;&lt;set $W = true&gt;&gt;
+&lt;&lt;set $N = false&gt;&gt;
+&lt;&lt;set $W = false&gt;&gt;
 &lt;&lt;set $S = true&gt;&gt;
-&lt;&lt;set $E = true&gt;&gt;
+&lt;&lt;set $E = false&gt;&gt;
 
 &lt;&lt;set $x = 0&gt;&gt;
 &lt;&lt;set $y = 0&gt;&gt;
@@ -328,7 +309,7 @@ $(document).on('contextmenu', function (e) {
 - die Grafik ist jetzt am handy auch mittig...  body im CSS responsive image auf 98%
 - das Kontextmenü bei Rechtsklick im Browser erscheint jetzt auch nicht mehr! Juhu.
 - Es gibt nun eine Berechnung für die Zielpassage wenn man auf vorwärts klickt.
-
+- 13:15 Uhr es gibt die ersten gehversuche man müsste jetzt 1x nach süden können und zurück...
 
 27.07.2026: 
 - Man kann links und rechts klicken um sich zu drehen.
@@ -337,10 +318,21 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;button &quot;Vollbild starten&quot;&gt;&gt;
 	&lt;&lt;run document.documentElement.requestFullscreen()&gt;&gt;
 	&lt;&lt;goto &quot;+000+000&quot;&gt;&gt;
-&lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="+000-001" tags="" position="800,525" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;/button&gt;&gt;
+
+&lt;&lt;set $N = false&gt;&gt;
+&lt;&lt;set $E = false&gt;&gt;
+&lt;&lt;set $S = false&gt;&gt;
+&lt;&lt;set $W = false&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="+000-001" tags="" position="800,500" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+000-001&quot;&gt;&gt;
 &lt;&lt;set $x = 0&gt;&gt;
 &lt;&lt;set $y = -1&gt;&gt;
+&lt;&lt;set $N = true&gt;&gt;
+&lt;&lt;set $W = false&gt;&gt;
+&lt;&lt;set $S = false&gt;&gt;
+&lt;&lt;set $E = false&gt;&gt;
+
+
 &lt;&lt;if !$facing&gt;&gt;
  &lt;&lt;set $facing = &quot;FN&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;
@@ -349,13 +341,12 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
 &lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-/% &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt; %/
+&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
-/% &lt;img src=&quot;bilder/+000+000FN.jpg&quot; class=&quot;responsive-image&quot;&gt; %/
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
- &lt;button class=&quot;hotspot pos-tm icon-forward&quot;&gt;&lt;/button&gt;
+ &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
 
