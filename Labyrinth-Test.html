@@ -105,86 +105,86 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
 	<tw-storydata name="Labyrinth-Test" startnode="2" creator="Twine" creator-version="2.10.0" format="SugarCube" format-version="2.37.3" ifid="85D33BCF-39CD-4BDB-8586-64FAE93F334F" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">#ui-bar {
- display: none;
+ display: none; /* Die Seitenleiste von SugarCube ausblenden */
 }
 
 #story {
- margin-left: 0;
+ margin-left: 0; /* Den Textbereich ganz nach links schieben */
 }
-
-.responsive-image {
- max-width: 100%;
- height: auto;
- display: block;
-}
-
-
-
 
 .img-wrap {
- position: relative;
+ position: relative; /* Damit die Hotspots sich auf das Bild beziehen */
  display: inline-block;
  width: 100%;
+ -webkit-touch-callout: none; /* Kein Browser-Menü bei langem Tippen auf Apple-Geräten */
+ -webkit-user-select: none; /* Nichts auf dem Bildbereich markieren */
+ -moz-user-select: none;
+ -ms-user-select: none;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent; /* Kein blauer Tipp-Effekt */
 }
 
 .responsive-image {
- width: 100%;
- height: auto;
- display: block;
+ width: 100%; /* Bild soll die verfügbare Breite nutzen */
+ height: auto; /* Höhe automatisch passend halten */
+ display: block; /* Bild ohne Lücke darunter anzeigen */
+ max-width: 100%;
+ pointer-events: none; /* Das Bild selbst soll keine Berührung abfangen */
+ -webkit-touch-callout: none; /* Kein Browser-Menü bei langem Tippen */
+ -webkit-user-select: none; /* Bild nicht markieren */
+ -moz-user-select: none;
+ -ms-user-select: none;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent; /* Kein Tipp-Highlight */
 }
 
 .hotspot {
- position: absolute;
- transform: translate(-50%, -50%);
- z-index: 2;
+ position: absolute; /* Hotspots frei über dem Bild platzieren */
+ transform: translate(-50%, -50%); /* Punkt genau auf die Position setzen */
+ z-index: 2; /* Hotspots über dem Bild anzeigen */
+ -webkit-touch-callout: none; /* Kein Browser-Menü bei langem Tippen */
+ -webkit-user-select: none; /* Hotspots nicht markieren */
+ -moz-user-select: none;
+ -ms-user-select: none;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent; /* Kein Tipp-Effekt */
 }
 
-.pos-tl { top: 5%; left: 5%; }
-.pos-tm { top: 5%; left: 50%; }
-.pos-tr { top: 5%; left: 95%; }
-
+.pos-tl { top: 5%; left: 5%; } /* Links oben */
+.pos-tm { top: 5%; left: 50%; } /* Mitte oben */
+.pos-tr { top: 5%; left: 95%; } /* Rechts oben */
 
 .icon-left {
  width: 48px;
  height: 48px;
- background-image: url("bilder/icon-left.png");
+ background-image: url("bilder/icon-left.png"); /* Linkes Symbol */
  background-size: contain;
  background-repeat: no-repeat;
  background-position: center;
  border: none;
  padding: 0;
 }
+
 .icon-right {
  width: 48px;
  height: 48px;
- background-image: url("bilder/icon-right.png");
+ background-image: url("bilder/icon-right.png"); /* Rechtes Symbol */
  background-size: contain;
  background-repeat: no-repeat;
  background-position: center;
  border: none;
  padding: 0;
 }
+
 .icon-forward {
  width: 48px;
  height: 48px;
- background-image: url("bilder/icon-forward.png");
+ background-image: url("bilder/icon-forward.png"); /* Vorwärts-Symbol */
  background-size: contain;
  background-repeat: no-repeat;
  background-position: center;
  border: none;
  padding: 0;
-
--webkit-touch-callout: none;
-	-webkit-user-select: none;
-	user-select: none;
-	-webkit-tap-highlight-color: transparent;
-}
-
-img {
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	user-select: none;
-	pointer-events: auto;
 }</style><script role="script" id="twine-user-script" type="text/twine-javascript">setup.pad3 = function (n) {
  const sign = n >= 0 ? "+" : "-";
  const abs = Math.abs(n);
@@ -203,7 +203,7 @@ $(document).on(':passagedisplay', function () {
  case 'FS': State.variables.facing = 'FE'; break;
  default: State.variables.facing = 'FN';
  }
- Engine.play('Start');
+ Engine.play(State.variables.room);
  });
 
  $('.js-c').off('click').on('click', function () {
@@ -213,10 +213,11 @@ $(document).on(':passagedisplay', function () {
  case 'FS': State.variables.facing = 'FW'; break;
  default: State.variables.facing = 'FN';
  }
- Engine.play('Start');
+ Engine.play(State.variables.room);
  });
 });
-</script><tw-passagedata pid="1" name="Start" tags="" position="800,400" size="100,100">&lt;&lt;nobr&gt;&gt;
+</script><tw-passagedata pid="1" name="+000+000" tags="" position="800,400" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;set $room = &quot;+000+000&quot;&gt;&gt;
 &lt;&lt;set $x = 0&gt;&gt;
 &lt;&lt;set $y = 0&gt;&gt;
 &lt;&lt;if !$facing&gt;&gt;
@@ -245,7 +246,7 @@ $(document).on(':passagedisplay', function () {
 - langes drauftippen auf vorwärts soll nun nicht mehr den grafik kontext öffnen?
 &lt;&lt;button &quot;Vollbild starten&quot;&gt;&gt;
 	&lt;&lt;run document.documentElement.requestFullscreen()&gt;&gt;
-	&lt;&lt;goto &quot;Start&quot;&gt;&gt;
+	&lt;&lt;goto &quot;+000+000&quot;&gt;&gt;
 &lt;&lt;/button&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
 	/*! SugarCube JS */
