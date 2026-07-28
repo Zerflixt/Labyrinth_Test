@@ -104,7 +104,13 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Labyrinth-Test" startnode="2" creator="Twine" creator-version="2.10.0" format="SugarCube" format-version="2.37.3" ifid="85D33BCF-39CD-4BDB-8586-64FAE93F334F" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">#ui-bar {
+	<tw-storydata name="Labyrinth-Test" startnode="2" creator="Twine" creator-version="2.10.0" format="SugarCube" format-version="2.37.3" ifid="85D33BCF-39CD-4BDB-8586-64FAE93F334F" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">
+body {
+ margin: 0 !important;
+ padding: 0 !important;
+}
+
+#ui-bar {
  display: none; /* Die Seitenleiste von SugarCube ausblenden */
 
 }
@@ -117,8 +123,7 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     outline: 2px solid red;*/
    margin-left: 0 !important;
  margin-right: 0 !important;
- padding-left: 0 !important;
- padding-right: 0 !important;
+
 }
 
 .img-wrap {
@@ -268,7 +273,7 @@ $(document).on(':passagedisplay', function () {
 
 28.07.2026:
 - langes tippen auf das Bild sollte nun (zumindest auf android) das context menü vermeiden.
-- die grafik soll jetzt angeblich mittig sein... mal sehen teste mit rahmen
+- die grafik soll jetzt angeblich mittig sein... teste mit body im CSS
 
 27.07.2026: 
 - Man kann links und rechts klicken um sich zu drehen.
