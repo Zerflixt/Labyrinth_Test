@@ -106,16 +106,20 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
 	</div>
 	<tw-storydata name="Labyrinth-Test" startnode="2" creator="Twine" creator-version="2.10.0" format="SugarCube" format-version="2.37.3" ifid="85D33BCF-39CD-4BDB-8586-64FAE93F334F" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">#ui-bar {
  display: none; /* Die Seitenleiste von SugarCube ausblenden */
+ padding: 0;
+  max-width:100%
 }
 
 #story {
- margin-left: 0; /* Den Textbereich ganz nach links schieben */
+ margin-left: 0 auto; /* Den Textbereich ganz nach links schieben */
 }
 
 .img-wrap {
  position: relative; /* Damit die Hotspots sich auf das Bild beziehen */
- display: inline-block;
+ display: block;
  width: 100%;
+ margin: 0 auto;
+ text-align: center;
  -webkit-touch-callout: none; /* Kein Browser-Menü bei langem Tippen auf Apple-Geräten */
  -webkit-user-select: none; /* Nichts auf dem Bildbereich markieren */
  -moz-user-select: none;
@@ -128,7 +132,8 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
  width: 100%; /* Bild soll die verfügbare Breite nutzen */
  height: auto; /* Höhe automatisch passend halten */
  display: block; /* Bild ohne Lücke darunter anzeigen */
- max-width: 100%;
+/* max-width: 100%; */
+ margin: 0 auto; 
  pointer-events: none; /* Das Bild selbst soll keine Berührung abfangen */
  -webkit-touch-callout: none; /* Kein Browser-Menü bei langem Tippen */
  -webkit-user-select: none; /* Bild nicht markieren */
@@ -242,6 +247,7 @@ $(document).on(':passagedisplay', function () {
 
 28.07.2026:
 - langes tippen auf das Bild sollte nun (zumindest auf android) das context menü vermeiden.
+- die grafik soll jetzt angeblich mittig sein... mal sehen
 
 27.07.2026: 
 - Man kann links und rechts klicken um sich zu drehen.
