@@ -235,10 +235,9 @@ setup.getFacingText = function () {
 };
 
 $(document).on(':passagedisplay', function () {
-  const opacity = 1 - (State.variables.rubbelwert / 100);
+ const opacity = 1 - (State.variables.rubbelwert / 100);
  $('.overlay-image').css('opacity', opacity);
-  
-  
+
  $('.js-a').off('click').on('click', function () {
  switch (State.variables.facing) {
  case 'FN': State.variables.facing = 'FW'; break;
@@ -297,20 +296,42 @@ $(document).on(':passagedisplay', function () {
  Engine.play(targetName);
  });
 
- $('.js-rub').off('click').on('click', function () {
+ let rubbing = false;
+ let lastRubTime = 0;
+
+ function rubAdd() {
  if (State.variables.facing !== 'FE') return;
 
  if (typeof State.variables.rubbelwert !== 'number') {
  State.variables.rubbelwert = 0;
  }
 
- State.variables.rubbelwert += 10;
+ const now = Date.now();
+ if (now - lastRubTime < 80) return;
+ lastRubTime = now;
 
+ State.variables.rubbelwert += 2;
  if (State.variables.rubbelwert > 100) {
  State.variables.rubbelwert = 100;
  }
 
- Engine.play(State.variables.room);
+ $('.overlay-image').css('opacity', 1 - (State.variables.rubbelwert / 100));
+ $('#rubbelwert-anzeige').text(State.variables.rubbelwert);
+ }
+
+ $('.js-rub')
+.off('mousedown mousemove mouseup mouseleave touchstart touchmove touchend touchcancel')
+.on('mousedown touchstart', function () {
+ rubbing = true;
+ rubAdd();
+ })
+.on('mousemove touchmove', function (e) {
+ if (!rubbing) return;
+ rubAdd();
+ e.preventDefault();
+ })
+.on('mouseup mouseleave touchend touchcancel', function () {
+ rubbing = false;
  });
 });
 
@@ -883,7 +904,7 @@ Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variab
 &lt;/div&gt;
 
 &lt;p id=&quot;kompass-zeile&quot;&gt;
-Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt; | Rubbelwert: &lt;&lt;print $rubbelwert&gt;&gt;%
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt; | Rubbelwert: &lt;span id=&quot;rubbelwert-anzeige&quot;&gt;&lt;&lt;print $rubbelwert&gt;&gt;&lt;/span&gt;%
 &lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
