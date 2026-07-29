@@ -204,6 +204,16 @@ body {
  background-position: center;
  border: none;
  padding: 0;
+}
+/* zum drüberlegen von sondergrafiken */
+.overlay-image {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: auto;
+ display: block;
+ z-index: 2;
 }</style><script role="script" id="twine-user-script" type="text/twine-javascript">setup.pad3 = function (n) {
  const sign = n >= 0 ? "+" : "-";
  const abs = Math.abs(n);
@@ -214,7 +224,21 @@ setup.getShotName = function () {
  return setup.pad3(State.variables.x) + setup.pad3(State.variables.y) + State.variables.facing;
 };
 
+setup.getFacingText = function () {
+ switch (State.variables.facing) {
+ case 'FN': return 'Norden';
+ case 'FS': return 'Süden';
+ case 'FW': return 'Westen';
+ case 'FE': return 'Osten';
+ default: return 'Unbekannt';
+ }
+};
+
 $(document).on(':passagedisplay', function () {
+  const opacity = 1 - (State.variables.rubbelwert / 100);
+ $('.overlay-image').css('opacity', opacity);
+  
+  
  $('.js-a').off('click').on('click', function () {
  switch (State.variables.facing) {
  case 'FN': State.variables.facing = 'FW'; break;
@@ -235,12 +259,7 @@ $(document).on(':passagedisplay', function () {
  Engine.play(State.variables.room);
  });
 
-$('.js-b').off('click').on('click', function () {
-  $('#debug-target').text(
- 'Passage: ' + State.variables.room + ' | Blick: ' + State.variables.facing
- ); 
-  
-  
+ $('.js-b').off('click').on('click', function () {
  let dx = 0;
  let dy = 0;
  let offen = false;
@@ -265,26 +284,38 @@ $('.js-b').off('click').on('click', function () {
  }
 
  if (!offen) {
- $('#debug-target').text(
- 'Passage: ' + State.variables.room + ' | Blick: ' + State.variables.facing + ' | Weg ist zu'
- );
+ $('#debug-target').text('Weg ist zu');
  return;
  }
-  
- const newX = State.variables.x + dx;
- const newY = State.variables.y + dy;
- const targetName = setup.pad3(newX) + setup.pad3(newY);
 
- $('#debug-target').text(
- 'Passage: ' + State.variables.room + ' | Blick: ' + State.variables.facing + ' | Ziel: ' + targetName
- );
+ State.variables.x += dx;
+ State.variables.y += dy;
+
+ const targetName = setup.pad3(State.variables.x) + setup.pad3(State.variables.y);
+ $('#debug-target').text('Ziel: ' + targetName);
 
  Engine.play(targetName);
-});
+ });
+
+ $('.js-rub').off('click').on('click', function () {
+ if (State.variables.facing !== 'FE') return;
+
+ if (typeof State.variables.rubbelwert !== 'number') {
+ State.variables.rubbelwert = 0;
+ }
+
+ State.variables.rubbelwert += 10;
+
+ if (State.variables.rubbelwert > 100) {
+ State.variables.rubbelwert = 100;
+ }
+
+ Engine.play(State.variables.room);
+ });
 });
 
 $(document).on('contextmenu', function (e) {
- e.preventDefault(); // hiermit soll das Kontextmenü am PC-Browser bei Rechtsklick vermieden werden
+ e.preventDefault();
 });</script><tw-passagedata pid="1" name="+000+000" tags="" position="800,700" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+000+000&quot;&gt;&gt;
 
@@ -293,8 +324,7 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set $S = true&gt;&gt;
 &lt;&lt;set $E = true&gt;&gt;
 
-&lt;&lt;set $x = 0&gt;&gt;
-&lt;&lt;set $y = 0&gt;&gt;
+
 &lt;&lt;if !$facing&gt;&gt;
  &lt;&lt;set $facing = &quot;FN&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;
@@ -302,16 +332,25 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
-
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="init" tags="" position="100,500" size="100,100">Dies ist nur eine Test datei.
+
+
+29.07.2026:
+
+- zum testen wie man versteckte texte freirubbeln kann habe ich moos über die runen bei +000+004 gepflanzt...
+- Koordinaten und Blickrichtung unter dem Bild.
+- Bewegungslogik optimiert Position wird über den Button gesetzt und nicht mehr in der Passage.
+
 
 28.07.2026:
 - 22:10 Uhr: Fehler bei -001+000 korrigiert... jetzt sollte der erste raum komplett funktionieren.
@@ -319,7 +358,7 @@ $(document).on('contextmenu', function (e) {
 - die Grafik ist jetzt am handy auch mittig...  body im CSS responsive image auf 98%
 - das Kontextmenü bei Rechtsklick im Browser erscheint jetzt auch nicht mehr! Juhu.
 - Es gibt nun eine Berechnung für die Zielpassage wenn man auf vorwärts klickt.
-- 20 Felder done... wenn ich alles richtig habe sollte man jetzt überall hinlaufen und sich drehen können...
+- Bewegen im Raum von Feld zu Feld nun möglich. Alle Grafiken passen zur jeweiligen Position und Blickrichtung
 
 27.07.2026: 
 - Man kann links und rechts klicken um sich zu drehen.
@@ -333,10 +372,12 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $E = false&gt;&gt;
 &lt;&lt;set $S = false&gt;&gt;
-&lt;&lt;set $W = false&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="+000-001" tags="" position="800,800" size="100,100">&lt;&lt;nobr&gt;&gt;
-&lt;&lt;set $room = &quot;+000-001&quot;&gt;&gt;
+&lt;&lt;set $W = false&gt;&gt;
+
 &lt;&lt;set $x = 0&gt;&gt;
-&lt;&lt;set $y = -1&gt;&gt;
+&lt;&lt;set $y = 0&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="+000-001" tags="" position="800,800" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;set $room = &quot;+000-001&quot;&gt;&gt;
+
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
 &lt;&lt;set $S = false&gt;&gt;
@@ -350,8 +391,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -359,11 +398,12 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
-
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="-001-001" tags="" position="700,800" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;-001-001&quot;&gt;&gt;
-&lt;&lt;set $x = -1&gt;&gt;
-&lt;&lt;set $y = -1&gt;&gt;
+
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = false&gt;&gt;
 &lt;&lt;set $S = false&gt;&gt;
@@ -377,20 +417,18 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
-
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
-
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="+001-001" tags="" position="900,800" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+001-001&quot;&gt;&gt;
-&lt;&lt;set $x = 1&gt;&gt;
-&lt;&lt;set $y = -1&gt;&gt;
+
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -405,8 +443,7 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
+
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -414,11 +451,11 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
-
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="+001+000" tags="" position="900,700" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+001+000&quot;&gt;&gt;
-&lt;&lt;set $x = 1&gt;&gt;
-&lt;&lt;set $y = 0&gt;&gt;
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -433,8 +470,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -442,11 +477,11 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
-
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="+002+000" tags="" position="1000,700" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+002+000&quot;&gt;&gt;
-&lt;&lt;set $x = 2&gt;&gt;
-&lt;&lt;set $y = 0&gt;&gt;
 
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -461,20 +496,17 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
-
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
-
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="-001+000" tags="" position="700,700" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;-001+000&quot;&gt;&gt;
-&lt;&lt;set $x = -1&gt;&gt;
-&lt;&lt;set $y = 0&gt;&gt;
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -489,19 +521,17 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
-
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="-002+000" tags="" position="600,700" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;-002+000&quot;&gt;&gt;
-&lt;&lt;set $x = -2&gt;&gt;
-&lt;&lt;set $y = 0&gt;&gt;
 
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = false&gt;&gt;
@@ -516,19 +546,17 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
-
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="+000+001" tags="" position="800,600" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+000+001&quot;&gt;&gt;
-&lt;&lt;set $x = 0&gt;&gt;
-&lt;&lt;set $y = 1&gt;&gt;
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -543,8 +571,7 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
+
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -552,10 +579,11 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="+001+001" tags="" position="900,600" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+001+001&quot;&gt;&gt;
-&lt;&lt;set $x = 1&gt;&gt;
-&lt;&lt;set $y = 1&gt;&gt;
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -570,8 +598,7 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
+
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -579,10 +606,12 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="-001+001" tags="" position="700,600" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;-001+001&quot;&gt;&gt;
-&lt;&lt;set $x = -1&gt;&gt;
-&lt;&lt;set $y = 1&gt;&gt;
+
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = false&gt;&gt;
@@ -597,8 +626,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -606,10 +633,12 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="+000+002" tags="" position="800,500" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+000+002&quot;&gt;&gt;
-&lt;&lt;set $x = 0&gt;&gt;
-&lt;&lt;set $y = 2&gt;&gt;
+
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -624,8 +653,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -633,10 +660,11 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="-001+002" tags="" position="700,500" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;-001+002&quot;&gt;&gt;
-&lt;&lt;set $x = -1&gt;&gt;
-&lt;&lt;set $y = 2&gt;&gt;
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -651,8 +679,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -660,10 +686,12 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="-002+002" tags="" position="600,500" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;-002+002&quot;&gt;&gt;
-&lt;&lt;set $x = -2&gt;&gt;
-&lt;&lt;set $y = 2&gt;&gt;
+
 
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = false&gt;&gt;
@@ -678,8 +706,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -687,10 +713,12 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="+001+002" tags="" position="900,500" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+001+002&quot;&gt;&gt;
-&lt;&lt;set $x = 1&gt;&gt;
-&lt;&lt;set $y = 2&gt;&gt;
+
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -705,19 +733,18 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
-
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="+002+002" tags="" position="1000,500" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+002+002&quot;&gt;&gt;
-&lt;&lt;set $x = 2&gt;&gt;
-&lt;&lt;set $y = 2&gt;&gt;
+
 
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -732,8 +759,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -741,11 +766,12 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="+000+003" tags="" position="800,400" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+000+003&quot;&gt;&gt;
-&lt;&lt;set $x = 0&gt;&gt;
-&lt;&lt;set $y = 3&gt;&gt;
 
 &lt;&lt;set $N = true&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -760,8 +786,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -769,10 +793,12 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="19" name="-001+003" tags="" position="700,400" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;-001+003&quot;&gt;&gt;
-&lt;&lt;set $x = -1&gt;&gt;
-&lt;&lt;set $y = 3&gt;&gt;
+
 
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = false&gt;&gt;
@@ -787,8 +813,6 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -796,10 +820,11 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="+001+003" tags="" position="900,400" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+001+003&quot;&gt;&gt;
-&lt;&lt;set $x = 1&gt;&gt;
-&lt;&lt;set $y = 3&gt;&gt;
 
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = true&gt;&gt;
@@ -814,8 +839,7 @@ $(document).on('contextmenu', function (e) {
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
 
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
+
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
@@ -823,33 +847,44 @@ $(document).on('contextmenu', function (e) {
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt;
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="+000+004" tags="" position="800,300" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $room = &quot;+000+004&quot;&gt;&gt;
-&lt;&lt;set $x = 0&gt;&gt;
-&lt;&lt;set $y = 4&gt;&gt;
 
 &lt;&lt;set $N = false&gt;&gt;
 &lt;&lt;set $W = false&gt;&gt;
 &lt;&lt;set $S = true&gt;&gt;
 &lt;&lt;set $E = false&gt;&gt;
 
-
 &lt;&lt;if !$facing&gt;&gt;
  &lt;&lt;set $facing = &quot;FN&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
+&lt;&lt;if !$rubbelwert&gt;&gt;
+ &lt;&lt;set $rubbelwert = 0&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
 &lt;&lt;set _shotName to setup.getShotName()&gt;&gt;
 &lt;&lt;set _shotPath to &quot;bilder/&quot; + _shotName + &quot;.jpg&quot;&gt;&gt;
-
-&lt;p&gt;Suche nach: &lt;&lt;print _shotPath&gt;&gt;&lt;/p&gt;
-&lt;p&gt;Ziel: &lt;span id=&quot;debug-target&quot;&gt;---&lt;/span&gt;&lt;/p&gt;
+&lt;&lt;set _overlayPath to &quot;bilder/sondergrafik.png&quot;&gt;&gt;
 
 &lt;div class=&quot;img-wrap&quot;&gt;
  &lt;img @src=&quot;_shotPath&quot; class=&quot;responsive-image&quot;&gt;
+
+&lt;&lt;if $facing is &quot;FE&quot;&gt;&gt;
+ &lt;img @src=&quot;_overlayPath&quot; class=&quot;overlay-image js-rub&quot;&gt;
+&lt;&lt;/if&gt;&gt;
+
  &lt;button class=&quot;hotspot pos-tl js-a icon-left&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tm js-b icon-forward&quot;&gt;&lt;/button&gt;
  &lt;button class=&quot;hotspot pos-tr js-c icon-right&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
+
+&lt;p id=&quot;kompass-zeile&quot;&gt;
+Feld: &lt;&lt;print State.variables.room&gt;&gt; | X: &lt;&lt;print State.variables.x&gt;&gt; | Y: &lt;&lt;print State.variables.y&gt;&gt; | Blickrichtung: &lt;&lt;print setup.getFacingText()&gt;&gt; | Rubbelwert: &lt;&lt;print $rubbelwert&gt;&gt;%
+&lt;/p&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
 	/*! SugarCube JS */
